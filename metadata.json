@@ -1,0 +1,6 @@
+{
+  "name": "UltraPress Blogger XML Theme",
+  "description": "High-performance, fully responsive, SEO and AdSense-optimized Blogger XML theme generator and step-by-step setup studio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

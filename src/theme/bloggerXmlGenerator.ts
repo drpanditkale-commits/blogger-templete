@@ -1,0 +1,1516 @@
+export interface ThemeConfig {
+  blogName: string;
+  blogDescription: string;
+  authorName: string;
+  authorBio: string;
+  authorAvatarUrl: string;
+  
+  // Monetization / AdSense
+  adSensePublisherId: string; // e.g., 'ca-pub-1234567890123456'
+  enableAutoAds: boolean;
+  enableHeaderAd: boolean;
+  headerAdSlot: string;
+  enableInArticleAd: boolean;
+  inArticleAdSlot: string;
+  enableBelowPostAd: boolean;
+  belowPostAdSlot: string;
+  enableSidebarStickyAd: boolean;
+  sidebarAdSlot: string;
+  enableAnchorAd: boolean;
+
+  // SEO & Analytics
+  googleAnalyticsId: string; // e.g., 'G-XXXXXXXXXX'
+  googleSiteVerification: string; // GSC verification token
+  twitterHandle: string;
+  primaryCategory: string;
+
+  // Design & Features
+  primaryColor: string; // HEX e.g., '#2563eb'
+  accentColor: string; // HEX e.g., '#059669'
+  fontFamily: 'Plus Jakarta Sans' | 'Cabinet Grotesk' | 'Inter' | 'Lora' | 'System Sans';
+  defaultDarkMode: boolean;
+  enableReadingProgress: boolean;
+  enableTableOfContents: boolean;
+  enableShareButtons: boolean;
+  enableAuthorBox: boolean;
+  enableRelatedPosts: boolean;
+  enableCodeCopyButton: boolean;
+  enableStickyHeader: boolean;
+  enableBackToTop: boolean;
+}
+
+export const DEFAULT_THEME_CONFIG: ThemeConfig = {
+  blogName: "UltraPress Tech & Insights",
+  blogDescription: "A fast, SEO-friendly, and high-CTR responsive publication covering modern technology, web development, and digital monetization.",
+  authorName: "Alex Mercer",
+  authorBio: "Software architect, tech writer, and digital creator building modern web experiences and monetization strategies.",
+  authorAvatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=face",
+
+  adSensePublisherId: "ca-pub-1234567890123456",
+  enableAutoAds: true,
+  enableHeaderAd: true,
+  headerAdSlot: "1122334455",
+  enableInArticleAd: true,
+  inArticleAdSlot: "2233445566",
+  enableBelowPostAd: true,
+  belowPostAdSlot: "3344556677",
+  enableSidebarStickyAd: true,
+  sidebarAdSlot: "4455667788",
+  enableAnchorAd: false,
+
+  googleAnalyticsId: "",
+  googleSiteVerification: "",
+  twitterHandle: "@ultrapress",
+  primaryCategory: "Technology",
+
+  primaryColor: "#0f766e", // Refined Teal/Emerald
+  accentColor: "#2563eb", // Vibrant Blue
+  fontFamily: "Plus Jakarta Sans",
+  defaultDarkMode: false,
+  enableReadingProgress: true,
+  enableTableOfContents: true,
+  enableShareButtons: true,
+  enableAuthorBox: true,
+  enableRelatedPosts: true,
+  enableCodeCopyButton: true,
+  enableStickyHeader: true,
+  enableBackToTop: true,
+};
+
+export function generateBloggerXml(config: ThemeConfig = DEFAULT_THEME_CONFIG): string {
+  const fontLink = config.fontFamily === 'Plus Jakarta Sans'
+    ? `<link rel='preconnect' href='https://fonts.googleapis.com'/>
+  <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin='anonymous'/>
+  <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap' rel='stylesheet'/>`
+    : config.fontFamily === 'Lora'
+    ? `<link rel='preconnect' href='https://fonts.googleapis.com'/>
+  <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin='anonymous'/>
+  <link href='https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&amp;family=Plus+Jakarta+Sans:wght@500;700&amp;display=swap' rel='stylesheet'/>`
+    : '';
+
+  const fontFamilyCss = config.fontFamily === 'Lora'
+    ? `'Lora', Georgia, serif`
+    : config.fontFamily === 'System Sans'
+    ? `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`
+    : `'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+
+  const pubId = config.adSensePublisherId.trim() || 'ca-pub-1234567890123456';
+  const autoAdsScript = config.enableAutoAds
+    ? `  <!-- Google AdSense Auto Ads -->
+  <script async='async' crossorigin='anonymous' expr:src='&quot;https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=&quot; + &quot;${pubId}&quot;'></script>`
+    : '';
+
+  const gaScript = config.googleAnalyticsId.trim()
+    ? `  <!-- Google Analytics 4 (GA4) -->
+  <script async='async' src='https://www.googletagmanager.com/gtag/js?id=${config.googleAnalyticsId}'></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${config.googleAnalyticsId}');
+  </script>`
+    : '';
+
+  const gscMeta = config.googleSiteVerification.trim()
+    ? `  <meta content='${config.googleSiteVerification}' name='google-site-verification'/>`
+    : '';
+
+  return `<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html b:css='false' b:defaultwidgetversion='2' b:layoutsVersion='3' b:responsive='true' expr:dir='data:blog.languageDirection' expr:lang='data:blog.locale' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+<head>
+  <meta charset='utf-8'/>
+  <meta content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5' name='viewport'/>
+  <meta content='IE=edge' http-equiv='X-UA-Compatible'/>
+  
+  <!-- Dynamic Page Title for SEO -->
+  <b:if cond='data:view.isHomepage'>
+    <title><data:blog.title/> - <data:blog.metaDescription/></title>
+  <b:elseif cond='data:view.isPost'/>
+    <title><data:blog.pageName/> | <data:blog.title/></title>
+  <b:elseif cond='data:view.isPage'/>
+    <title><data:blog.pageName/> | <data:blog.title/></title>
+  <b:elseif cond='data:view.isSearch'/>
+    <title>Search: <data:view.search.query/> | <data:blog.title/></title>
+  <b:elseif cond='data:view.isLabelSearch'/>
+    <title>Topic: <data:blog.pageName/> | <data:blog.title/></title>
+  <b:else/>
+    <title><data:blog.pageTitle/></title>
+  </b:if>
+
+  <!-- Canonical & Blogger Essential Head -->
+  <b:include data='blog' name='all-head-content'/>
+  ${gscMeta}
+
+  <!-- Open Graph & Social Cards SEO -->
+  <meta expr:content='data:blog.canonicalUrl' property='og:url'/>
+  <meta expr:content='data:blog.pageName ? data:blog.pageName : data:blog.title' property='og:title'/>
+  <b:if cond='data:blog.metaDescription'>
+    <meta expr:content='data:blog.metaDescription' property='og:description'/>
+    <meta expr:content='data:blog.metaDescription' name='description'/>
+    <meta expr:content='data:blog.metaDescription' name='twitter:description'/>
+  </b:if>
+  <b:if cond='data:view.featuredImage'>
+    <meta expr:content='data:view.featuredImage' property='og:image'/>
+    <meta expr:content='data:view.featuredImage' name='twitter:image'/>
+  </b:if>
+  <meta content='summary_large_image' name='twitter:card'/>
+  <meta expr:content='data:blog.pageName ? data:blog.pageName : data:blog.title' name='twitter:title'/>
+  <meta content='${config.twitterHandle}' name='twitter:site'/>
+  <meta content='${config.twitterHandle}' name='twitter:creator'/>
+
+  <!-- Preconnect for Performance Optimization -->
+  <link rel='preconnect' href='https://pagead2.googlesyndication.com'/>
+  <link rel='preconnect' href='https://adservice.google.com'/>
+  ${fontLink}
+${autoAdsScript}
+${gaScript}
+
+  <!-- Schema.org JSON-LD Structured Data for Rich Snippets -->
+  <b:if cond='data:view.isPost'>
+    <script type='application/ld+json'>
+    {
+      &quot;@context&quot;: &quot;https://schema.org&quot;,
+      &quot;@type&quot;: &quot;BlogPosting&quot;,
+      &quot;mainEntityOfPage&quot;: {
+        &quot;@type&quot;: &quot;WebPage&quot;,
+        &quot;@id&quot;: &quot;<data:blog.canonicalUrl/>&quot;
+      },
+      &quot;headline&quot;: &quot;<data:blog.pageName/>&quot;,
+      &quot;description&quot;: &quot;<data:blog.metaDescription/>&quot;,
+      &quot;image&quot;: &quot;<data:view.featuredImage/>&quot;,
+      &quot;datePublished&quot;: &quot;<data:post.date.iso8601/>&quot;,
+      &quot;dateModified&quot;: &quot;<data:post.lastUpdated.iso8601/>&quot;,
+      &quot;author&quot;: {
+        &quot;@type&quot;: &quot;Person&quot;,
+        &quot;name&quot;: &quot;${config.authorName}&quot;
+      },
+      &quot;publisher&quot;: {
+        &quot;@type&quot;: &quot;Organization&quot;,
+        &quot;name&quot;: &quot;<data:blog.title/>&quot;,
+        &quot;logo&quot;: {
+          &quot;@type&quot;: &quot;ImageObject&quot;,
+          &quot;url&quot;: &quot;<data:view.featuredImage/>&quot;
+        }
+      }
+    }
+    </script>
+  <b:else/>
+    <script type='application/ld+json'>
+    {
+      &quot;@context&quot;: &quot;https://schema.org&quot;,
+      &quot;@type&quot;: &quot;WebSite&quot;,
+      &quot;name&quot;: &quot;<data:blog.title/>&quot;,
+      &quot;url&quot;: &quot;<data:blog.canonicalHomepageUrl/>&quot;,
+      &quot;potentialAction&quot;: {
+        &quot;@type&quot;: &quot;SearchAction&quot;,
+        &quot;target&quot;: &quot;<data:blog.canonicalHomepageUrl/>search?q={search_term_string}&quot;,
+        &quot;query-input&quot;: &quot;required name=search_term_string&quot;
+      }
+    }
+    </script>
+  </b:if>
+
+  <!-- Theme Skin & Optimized CSS (Core Web Vitals friendly) -->
+  <b:skin><![CDATA[
+/*
+ * UltraPress Blogger Theme
+ * Version: 2.5.0 (High Speed, SEO & AdSense Optimized)
+ * Author: UltraPress Studio
+ * License: Open Source (MIT)
+ */
+
+:root {
+  --font-main: ${fontFamilyCss};
+  --color-primary: ${config.primaryColor};
+  --color-primary-hover: #0d635c;
+  --color-accent: ${config.accentColor};
+  
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --border-color: #e2e8f0;
+  --border-subtle: #edf2f7;
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --container-max: 1200px;
+  --header-height: 64px;
+}
+
+[data-theme='dark'] {
+  --bg-page: #0b0f17;
+  --bg-surface: #111827;
+  --bg-subtle: #1e293b;
+  --border-color: #1f2937;
+  --border-subtle: #2d3748;
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+}
+
+/* CSS Reset & Foundation */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-main);
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-primary);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Reading Progress Bar */
+#reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background-color: var(--color-primary);
+  z-index: 9999;
+  transition: width 0.1s ease-out;
+}
+
+/* Top Navigation Bar */
+.site-header {
+  position: ${config.enableStickyHeader ? 'sticky' : 'relative'};
+  top: 0;
+  z-index: 100;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(8px);
+  height: var(--header-height);
+}
+
+.header-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.brand-zone {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.brand-zone span.dot {
+  color: var(--color-primary);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.nav-links a:hover {
+  color: var(--text-main);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-icon {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-icon:hover {
+  background-color: var(--bg-subtle);
+  color: var(--text-main);
+  border-color: var(--text-muted);
+}
+
+.hamburger-btn {
+  display: none;
+}
+
+/* Mobile Nav Drawer */
+.mobile-drawer {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.mobile-drawer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.drawer-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  background-color: var(--bg-surface);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transform: translateX(-100%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-drawer.active .drawer-content {
+  transform: translateX(0);
+}
+
+.drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Main Layout Grid */
+.main-wrapper {
+  max-width: var(--container-max);
+  margin: 1.5rem auto 3rem;
+  padding: 0 1.25rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.full-width-wrapper {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* AdSense Containers (Fully Policy Compliant) */
+.ad-slot-wrapper {
+  margin: 1.5rem 0;
+  text-align: center;
+  background-color: var(--bg-surface);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.5rem;
+  overflow: hidden;
+}
+
+.ad-label {
+  display: block;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.ad-slot-header {
+  max-width: 728px;
+  margin: 1rem auto;
+}
+
+.ad-slot-inarticle {
+  margin: 2rem 0;
+}
+
+.ad-slot-sidebar {
+  margin-bottom: 1.5rem;
+}
+
+/* Blog Post List & Cards (Homepage / Archives) */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.post-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--text-light);
+}
+
+.post-card-thumb {
+  aspect-ratio: 16 / 9;
+  background-color: var(--bg-subtle);
+  overflow: hidden;
+  position: relative;
+}
+
+.post-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.post-card:hover .post-card-thumb img {
+  transform: scale(1.03);
+}
+
+.post-card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.post-meta-unboxed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: 0.625rem;
+}
+
+.post-meta-unboxed .tag {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.post-card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.post-card-snippet {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-card-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--text-light);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.75rem;
+}
+
+/* Single Post View */
+.single-post-article {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem 2rem;
+}
+
+.post-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.post-single-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  text-wrap: balance;
+}
+
+.post-single-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.post-author-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.author-chip-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-featured-image {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+/* Table of Contents */
+.toc-box {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin: 1.75rem 0;
+}
+
+.toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.toc-list {
+  margin-top: 0.75rem;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.9375rem;
+}
+
+.toc-list a {
+  color: var(--text-muted);
+}
+
+.toc-list a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* Post Content Typography */
+.post-content {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--text-main);
+}
+
+.post-content p {
+  margin-bottom: 1.5rem;
+}
+
+.post-content h2 {
+  font-size: 1.625rem;
+  font-weight: 700;
+  margin: 2rem 0 1rem;
+  letter-spacing: -0.015em;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.5rem;
+}
+
+.post-content h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.post-content ul, .post-content ol {
+  margin: 1rem 0 1.5rem 1.5rem;
+}
+
+.post-content li {
+  margin-bottom: 0.5rem;
+}
+
+.post-content blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding: 0.75rem 1.25rem;
+  background-color: var(--bg-subtle);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+  margin: 1.5rem 0;
+  color: var(--text-muted);
+}
+
+.post-content pre {
+  background-color: #0f172a;
+  color: #f8fafc;
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.post-content code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  background-color: var(--bg-subtle);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+}
+
+.post-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+/* Share Buttons */
+.share-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 2rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ffffff;
+  transition: opacity 0.15s ease;
+}
+
+.share-btn:hover {
+  opacity: 0.9;
+  color: #ffffff;
+}
+
+.share-btn-x { background-color: #000000; }
+.share-btn-fb { background-color: #1877f2; }
+.share-btn-wa { background-color: #25d366; }
+.share-btn-tg { background-color: #229ed9; }
+.share-btn-li { background-color: #0a66c2; }
+.share-btn-copy { background-color: #475569; cursor: pointer; }
+
+/* Author Box */
+.author-box {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin: 2rem 0;
+}
+
+.author-box-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.author-box-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.author-box-bio {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Sidebar Widgets */
+.sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.widget {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.widget-sticky {
+  position: sticky;
+  top: calc(var(--header-height) + 1.5rem);
+}
+
+.widget-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.widget-title::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: var(--color-primary);
+  margin-left: auto;
+}
+
+/* Popular Posts list */
+.popular-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.popular-post-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.popular-post-num {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-light);
+  width: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.popular-post-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-main);
+}
+
+.popular-post-link:hover {
+  color: var(--color-primary);
+}
+
+/* Footer */
+.site-footer {
+  margin-top: auto;
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  padding: 2.5rem 0 1.5rem;
+}
+
+.footer-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+/* Back to Top Button */
+#back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.15s ease;
+  z-index: 90;
+}
+
+#back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+#back-to-top:hover {
+  transform: translateY(-3px);
+}
+
+/* Toast Notification */
+#toast-msg {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 10000;
+  box-shadow: var(--shadow-lg);
+}
+
+#toast-msg.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 992px) {
+  .main-wrapper {
+    grid-template-columns: 1fr;
+  }
+  .posts-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  .hamburger-btn {
+    display: flex;
+  }
+  .single-post-article {
+    padding: 1.5rem 1.25rem;
+  }
+  .post-single-title {
+    font-size: 1.625rem;
+  }
+}
+  ]]></b:skin>
+</head>
+
+<body expr:class='data:blog.pageType'>
+  ${config.enableReadingProgress ? `<div id='reading-progress'></div>` : ''}
+
+  <!-- Header -->
+  <header class='site-header'>
+    <div class='header-container'>
+      <div class='brand-zone'>
+        <b:section id='header-logo' maxwidgets='1' showaddelement='no'>
+          <b:widget id='Header1' locked='true' title='Site Header' type='Header' version='2'>
+            <b:widget-settings>
+              <b:widget-setting name='displayUrl'/>
+              <b:widget-setting name='displayHeight'>0</b:widget-setting>
+              <b:widget-setting name='sectionWidth'>-1</b:widget-setting>
+              <b:widget-setting name='useImage'>false</b:widget-setting>
+              <b:widget-setting name='shrinkToFit'>false</b:widget-setting>
+              <b:widget-setting name='imagePlacement'>BEHIND</b:widget-setting>
+              <b:widget-setting name='displayWidth'>0</b:widget-setting>
+            </b:widget-settings>
+            <b:includable id='main'>
+              <a expr:href='data:blog.canonicalHomepageUrl'>
+                <data:title/>
+              </a>
+            </b:includable>
+          </b:widget>
+        </b:section>
+      </div>
+
+      <!-- Navigation links -->
+      <nav class='nav-links'>
+        <a expr:href='data:blog.canonicalHomepageUrl'>Home</a>
+        <a href='/search/label/Technology'>Technology</a>
+        <a href='/search/label/Tutorials'>Tutorials</a>
+        <a href='/search/label/SEO'>SEO &amp; Growth</a>
+        <a href='/p/about.html'>About</a>
+        <a href='/p/contact.html'>Contact</a>
+      </nav>
+
+      <!-- Action items: Dark mode toggle & mobile hamburger -->
+      <div class='header-actions'>
+        <button aria-label='Toggle dark theme' class='btn-icon' id='theme-toggle-btn' type='button'>
+          <svg fill='none' height='18' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='18'>
+            <path d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/>
+          </svg>
+        </button>
+
+        <button aria-label='Open mobile menu' class='btn-icon hamburger-btn' id='hamburger-btn' type='button'>
+          <svg fill='none' height='20' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='20'>
+            <line x1='3' x2='21' y1='12' y2='12'/>
+            <line x1='3' x2='21' y1='6' y2='6'/>
+            <line x1='3' x2='21' y1='18' y2='18'/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div class='mobile-drawer' id='mobile-drawer'>
+    <div class='drawer-content'>
+      <div style='display:flex; justify-content:space-between; align-items:center;'>
+        <span style='font-weight:700; font-size:1.125rem;'><data:blog.title/></span>
+        <button class='btn-icon' id='close-drawer-btn' type='button'>&times;</button>
+      </div>
+      <nav class='drawer-links'>
+        <a expr:href='data:blog.canonicalHomepageUrl'>Home</a>
+        <a href='/search/label/Technology'>Technology</a>
+        <a href='/search/label/Tutorials'>Tutorials</a>
+        <a href='/search/label/SEO'>SEO &amp; Growth</a>
+        <a href='/p/about.html'>About Us</a>
+        <a href='/p/contact.html'>Contact</a>
+        <a href='/p/privacy-policy.html'>Privacy Policy</a>
+      </nav>
+    </div>
+  </div>
+
+  ${config.enableHeaderAd ? `  <!-- Header Leaderboard Ad Unit (Desktop 728x90 / Mobile 320x100) -->
+  <div class='ad-slot-wrapper ad-slot-header'>
+    <span class='ad-label'>Advertisement</span>
+    <b:section id='header-ad-section' maxwidgets='1' showaddelement='yes'>
+      <b:widget id='HTML99' locked='false' title='Header Ad' type='HTML' version='2'>
+        <b:widget-settings>
+          <b:widget-setting name='content'><![CDATA[
+            <!-- Google AdSense Header Banner -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="${pubId}"
+                 data-ad-slot="${config.headerAdSlot}"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="true"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          ]]></b:widget-setting>
+        </b:widget-settings>
+        <b:includable id='main'>
+          <data:content/>
+        </b:includable>
+      </b:widget>
+    </b:section>
+  </div>` : ''}
+
+  <!-- Main Content Layout -->
+  <div class='main-wrapper'>
+    <main id='main-content'>
+      <b:section id='main' showaddelement='no'>
+        <b:widget id='Blog1' locked='true' title='Blog Posts' type='Blog' version='2'>
+          <b:includable id='main' var='top'>
+            <!-- Post Item View (Single Article) -->
+            <b:if cond='data:view.isPost or data:view.isPage'>
+              <b:loop values='data:posts' var='post'>
+                <article class='single-post-article'>
+                  <!-- Breadcrumb -->
+                  <div class='post-breadcrumb'>
+                    <a expr:href='data:blog.canonicalHomepageUrl'>Home</a>
+                    <span>/</span>
+                    <b:if cond='data:post.labels'>
+                      <b:loop values='data:post.labels' var='label'>
+                        <a expr:href='data:label.url'><data:label.name/></a>
+                        <span>/</span>
+                      </b:loop>
+                    </b:if>
+                    <span style='color:var(--text-light);'><data:post.title/></span>
+                  </div>
+
+                  <!-- Post Title -->
+                  <h1 class='post-single-title'><data:post.title/></h1>
+
+                  <!-- Post Metadata -->
+                  <div class='post-single-meta'>
+                    <div class='post-author-chip'>
+                      <img alt='${config.authorName}' class='author-chip-avatar' src='${config.authorAvatarUrl}'/>
+                      <span><data:post.author.name/></span>
+                    </div>
+                    <span>·</span>
+                    <time expr:datetime='data:post.date.iso8601'><data:post.date/></time>
+                    <span>·</span>
+                    <span>5 min read</span>
+                  </div>
+
+                  ${config.enableInArticleAd ? `                  <!-- In-Article Top Ad Slot (High CTR placement) -->
+                  <div class='ad-slot-wrapper ad-slot-inarticle'>
+                    <span class='ad-label'>Sponsored Content</span>
+                    <ins class="adsbygoogle"
+                         style="display:block; text-align:center;"
+                         data-ad-layout="in-article"
+                         data-ad-format="fluid"
+                         data-ad-client="${pubId}"
+                         data-ad-slot="${config.inArticleAdSlot}"></ins>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                  </div>` : ''}
+
+                  ${config.enableTableOfContents ? `                  <!-- Table of Contents Auto-Generated Container -->
+                  <div class='toc-box' id='toc-container' style='display:none;'>
+                    <div class='toc-header' id='toc-toggle'>
+                      <span>Table of Contents</span>
+                      <span id='toc-icon'>[Hide]</span>
+                    </div>
+                    <ol class='toc-list' id='toc-list'></ol>
+                  </div>` : ''}
+
+                  <!-- Post Body -->
+                  <div class='post-content' id='post-body'>
+                    <data:post.body/>
+                  </div>
+
+                  ${config.enableShareButtons ? `                  <!-- Social Share Bar -->
+                  <div class='share-bar'>
+                    <span style='font-size:0.875rem; font-weight:600; color:var(--text-muted); margin-right:0.5rem;'>Share:</span>
+                    <a class='share-btn share-btn-x' expr:href='&quot;https://twitter.com/intent/tweet?text=&quot; + data:post.title + &quot;&amp;url=&quot; + data:post.url' rel='nofollow noopener' target='_blank'>X / Twitter</a>
+                    <a class='share-btn share-btn-fb' expr:href='&quot;https://www.facebook.com/sharer/sharer.php?u=&quot; + data:post.url' rel='nofollow noopener' target='_blank'>Facebook</a>
+                    <a class='share-btn share-btn-wa' expr:href='&quot;https://api.whatsapp.com/send?text=&quot; + data:post.title + &quot; &quot; + data:post.url' rel='nofollow noopener' target='_blank'>WhatsApp</a>
+                    <a class='share-btn share-btn-tg' expr:href='&quot;https://t.me/share/url?url=&quot; + data:post.url + &quot;&amp;text=&quot; + data:post.title' rel='nofollow noopener' target='_blank'>Telegram</a>
+                    <button class='share-btn share-btn-copy' id='copy-link-btn' type='button'>Copy Link</button>
+                  </div>` : ''}
+
+                  ${config.enableBelowPostAd ? `                  <!-- Below Post Ad Unit (High Engagement) -->
+                  <div class='ad-slot-wrapper'>
+                    <span class='ad-label'>Advertisement</span>
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="${pubId}"
+                         data-ad-slot="${config.belowPostAdSlot}"
+                         data-ad-format="rectangle, horizontal"
+                         data-full-width-responsive="true"></ins>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                  </div>` : ''}
+
+                  ${config.enableAuthorBox ? `                  <!-- Author Box -->
+                  <div class='author-box'>
+                    <img alt='${config.authorName}' class='author-box-avatar' src='${config.authorAvatarUrl}'/>
+                    <div>
+                      <div class='author-box-name'>${config.authorName}</div>
+                      <p class='author-box-bio'>${config.authorBio}</p>
+                    </div>
+                  </div>` : ''}
+
+                  <!-- Blogger Comments -->
+                  <b:include data='post' name='comments'/>
+                </article>
+              </b:loop>
+            <!-- Homepage & Archive Post Cards Loop -->
+            <b:else/>
+              <div class='posts-grid'>
+                <b:loop values='data:posts' var='post'>
+                  <article class='post-card'>
+                    <b:if cond='data:post.featuredImage'>
+                      <a class='post-card-thumb' expr:href='data:post.url'>
+                        <img expr:alt='data:post.title' expr:src='resizeImage(data:post.featuredImage, 600, &quot;600:338&quot;)' loading='lazy'/>
+                      </a>
+                    </b:if>
+                    <div class='post-card-body'>
+                      <div class='post-meta-unboxed'>
+                        <b:if cond='data:post.labels'>
+                          <span class='tag'><data:post.labels.first.name/></span>
+                          <span>·</span>
+                        </b:if>
+                        <time expr:datetime='data:post.date.iso8601'><data:post.date/></time>
+                        <span>·</span>
+                        <span>4 min read</span>
+                      </div>
+                      <h2 class='post-card-title'>
+                        <a expr:href='data:post.url'><data:post.title/></a>
+                      </h2>
+                      <div class='post-card-snippet'>
+                        <data:post.snippets.short/>
+                      </div>
+                      <div class='post-card-footer'>
+                        <span>By <data:post.author.name/></span>
+                        <a expr:href='data:post.url' style='font-weight:600; color:var(--color-primary);'>Read Article &rarr;</a>
+                      </div>
+                    </div>
+                  </article>
+                </b:loop>
+              </div>
+
+              <!-- Pagination -->
+              <b:include name='nextprev'/>
+            </b:if>
+          </b:includable>
+        </b:widget>
+      </b:section>
+    </main>
+
+    <!-- Sidebar -->
+    <aside class='sidebar-wrapper' id='sidebar'>
+      ${config.enableSidebarStickyAd ? `      <!-- Sticky Sidebar AdSense Unit (300x250 or 300x600 Skyscraper) -->
+      <div class='widget widget-sticky'>
+        <div class='widget-title'>Sponsored</div>
+        <div class='ad-slot-wrapper ad-slot-sidebar' style='margin:0; border:none;'>
+          <span class='ad-label'>Advertisement</span>
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="${pubId}"
+               data-ad-slot="${config.sidebarAdSlot}"
+               data-ad-format="rectangle"
+               data-full-width-responsive="true"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+      </div>` : ''}
+
+      <!-- Popular Topics Widget -->
+      <div class='widget'>
+        <div class='widget-title'>Trending Topics</div>
+        <div style='display:flex; flex-direction:column; gap:0.6rem; font-size:0.9rem;'>
+          <a href='/search/label/Technology' style='display:flex; justify-content:space-between;'>
+            <span>Technology</span>
+            <span style='color:var(--text-light);'>24</span>
+          </a>
+          <a href='/search/label/SEO' style='display:flex; justify-content:space-between;'>
+            <span>SEO &amp; Growth</span>
+            <span style='color:var(--text-light);'>18</span>
+          </a>
+          <a href='/search/label/Tutorials' style='display:flex; justify-content:space-between;'>
+            <span>Web Dev Tutorials</span>
+            <span style='color:var(--text-light);'>15</span>
+          </a>
+          <a href='/search/label/Monetization' style='display:flex; justify-content:space-between;'>
+            <span>AdSense &amp; Monetization</span>
+            <span style='color:var(--text-light);'>12</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Newsletter / Follow Box -->
+      <div class='widget'>
+        <div class='widget-title'>Stay Updated</div>
+        <p style='font-size:0.875rem; color:var(--text-muted); margin-bottom:1rem;'>
+          Join 15,000+ readers receiving weekly insights on performance, monetization, and web design.
+        </p>
+        <form action='/search' method='get' style='display:flex; gap:0.5rem;'>
+          <input name='q' placeholder='Search articles...' style='flex:1; padding:0.5rem 0.75rem; border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:0.875rem; background:var(--bg-subtle); color:var(--text-main);' type='text'/>
+          <button style='padding:0.5rem 1rem; background:var(--color-primary); color:#ffffff; border:none; border-radius:var(--radius-sm); font-weight:600; cursor:pointer;' type='submit'>Find</button>
+        </form>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Footer -->
+  <footer class='site-footer'>
+    <div class='footer-container'>
+      <div class='footer-top'>
+        <div>
+          <div style='font-weight:800; font-size:1.25rem; margin-bottom:0.75rem; color:var(--text-main);'><data:blog.title/></div>
+          <p style='font-size:0.875rem; color:var(--text-muted); max-width:400px; line-height:1.6;'>
+            ${config.blogDescription}
+          </p>
+        </div>
+        <div>
+          <div style='font-weight:700; font-size:0.9375rem; margin-bottom:0.75rem; color:var(--text-main);'>Navigation</div>
+          <div style='display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem; color:var(--text-muted);'>
+            <a expr:href='data:blog.canonicalHomepageUrl'>Home</a>
+            <a href='/search/label/Technology'>Technology</a>
+            <a href='/search/label/Tutorials'>Tutorials</a>
+            <a href='/search/label/SEO'>SEO &amp; Monetization</a>
+          </div>
+        </div>
+        <div>
+          <div style='font-weight:700; font-size:0.9375rem; margin-bottom:0.75rem; color:var(--text-main);'>Legal &amp; Policy</div>
+          <div style='display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem; color:var(--text-muted);'>
+            <a href='/p/privacy-policy.html'>Privacy Policy</a>
+            <a href='/p/terms-of-service.html'>Terms of Service</a>
+            <a href='/p/disclaimer.html'>AdSense Disclaimer</a>
+            <a href='/p/contact.html'>Contact Support</a>
+          </div>
+        </div>
+      </div>
+      <div class='footer-bottom'>
+        <div>&copy; <span id='footer-year'></span> <data:blog.title/>. Optimized for PageSpeed &amp; AdSense.</div>
+        <div style='display:flex; gap:1rem;'>
+          <a expr:href='data:blog.canonicalHomepageUrl + &quot;feeds/posts/default&quot;'>RSS Feed</a>
+          <a expr:href='data:blog.canonicalHomepageUrl + &quot;sitemap.xml&quot;'>Sitemap</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  ${config.enableBackToTop ? `  <!-- Back to Top Button -->
+  <button aria-label='Scroll to top' id='back-to-top' type='button'>
+    <svg fill='none' height='20' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='20'>
+      <polyline points='18 15 12 9 6 15'/>
+    </svg>
+  </button>` : ''}
+
+  <!-- Toast Notification -->
+  <div id='toast-msg'>Link copied to clipboard!</div>
+
+  <!-- Ultra-Fast Vanilla JavaScript (Zero External Dependencies, ~3KB) -->
+  <script type='text/javascript'>
+  //<![CDATA[
+  document.addEventListener('DOMContentLoaded', function() {
+    // Current year in footer
+    var yearEl = document.getElementById('footer-year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    // Dark Mode Toggle
+    var themeToggleBtn = document.getElementById('theme-toggle-btn');
+    var savedTheme = localStorage.getItem('theme') || (${config.defaultDarkMode ? "'dark'" : "'light'"});
+    if (savedTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        var target = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', target);
+        localStorage.setItem('theme', target);
+      });
+    }
+
+    // Mobile Drawer Toggle
+    var hamburgerBtn = document.getElementById('hamburger-btn');
+    var mobileDrawer = document.getElementById('mobile-drawer');
+    var closeDrawerBtn = document.getElementById('close-drawer-btn');
+
+    if (hamburgerBtn && mobileDrawer) {
+      hamburgerBtn.addEventListener('click', function() {
+        mobileDrawer.classList.add('active');
+      });
+    }
+    if (closeDrawerBtn && mobileDrawer) {
+      closeDrawerBtn.addEventListener('click', function() {
+        mobileDrawer.classList.remove('active');
+      });
+    }
+    if (mobileDrawer) {
+      mobileDrawer.addEventListener('click', function(e) {
+        if (e.target === mobileDrawer) {
+          mobileDrawer.classList.remove('active');
+        }
+      });
+    }
+
+    // Reading Progress Bar
+    var progressBar = document.getElementById('reading-progress');
+    if (progressBar) {
+      window.addEventListener('scroll', function() {
+        var winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        var scrolled = (height > 0) ? (winScroll / height) * 100 : 0;
+        progressBar.style.width = scrolled + '%';
+      }, { passive: true });
+    }
+
+    // Back to Top Button
+    var backToTopBtn = document.getElementById('back-to-top');
+    if (backToTopBtn) {
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 400) {
+          backToTopBtn.classList.add('visible');
+        } else {
+          backToTopBtn.classList.remove('visible');
+        }
+      }, { passive: true });
+
+      backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // Copy Link Button with Toast
+    var copyBtn = document.getElementById('copy-link-btn');
+    var toast = document.getElementById('toast-msg');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function() {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(window.location.href).then(function() {
+            showToast('Link copied to clipboard!');
+          });
+        }
+      });
+    }
+
+    function showToast(text) {
+      if (!toast) return;
+      toast.textContent = text;
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Auto Table of Contents Generation
+    var postBody = document.getElementById('post-body');
+    var tocContainer = document.getElementById('toc-container');
+    var tocList = document.getElementById('toc-list');
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocIcon = document.getElementById('toc-icon');
+
+    if (postBody && tocContainer && tocList) {
+      var headings = postBody.querySelectorAll('h2, h3');
+      if (headings.length >= 2) {
+        headings.forEach(function(heading, idx) {
+          var id = heading.id || 'section-' + idx;
+          heading.id = id;
+          var li = document.createElement('li');
+          if (heading.tagName.toLowerCase() === 'h3') {
+            li.style.marginLeft = '1.25rem';
+            li.style.fontSize = '0.875rem';
+          }
+          var a = document.createElement('a');
+          a.href = '#' + id;
+          a.textContent = heading.textContent;
+          li.appendChild(a);
+          tocList.appendChild(li);
+        });
+        tocContainer.style.display = 'block';
+
+        if (tocToggle && tocIcon) {
+          tocToggle.addEventListener('click', function() {
+            if (tocList.style.display === 'none') {
+              tocList.style.display = 'flex';
+              tocIcon.textContent = '[Hide]';
+            } else {
+              tocList.style.display = 'none';
+              tocIcon.textContent = '[Show]';
+            }
+          });
+        }
+      }
+    }
+
+    // Code Snippet Copy Buttons
+    ${config.enableCodeCopyButton ? `    if (postBody) {
+      var preBlocks = postBody.querySelectorAll('pre');
+      preBlocks.forEach(function(pre) {
+        var btn = document.createElement('button');
+        btn.textContent = 'Copy';
+        btn.style.cssText = 'position:absolute; top:8px; right:8px; font-size:11px; padding:3px 8px; border-radius:4px; border:1px solid #334155; background:#1e293b; color:#94a3b8; cursor:pointer; font-family:sans-serif;';
+        btn.addEventListener('click', function() {
+          var code = pre.querySelector('code') || pre;
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(code.innerText).then(function() {
+              btn.textContent = 'Copied!';
+              btn.style.color = '#38bdf8';
+              setTimeout(function() {
+                btn.textContent = 'Copy';
+                btn.style.color = '#94a3b8';
+              }, 2000);
+            });
+          }
+        });
+        pre.appendChild(btn);
+      });
+    }` : ''}
+  });
+  //]]>
+  </script>
+</body>
+</html>`;
+}
